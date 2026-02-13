@@ -44,18 +44,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Registrar Observer
         Product::observe(ProductObserver::class);
-
-        // Criar índice do Elasticsearch na inicialização
-        try {
-            $elasticsearchService = $this->app->make(ElasticsearchService::class);
-            $elasticsearchService->createIndex();
-        } catch (\Exception $e) {
-            // Log mas não falha a aplicação se Elasticsearch não estiver disponível
-            \Log::warning('Failed to create Elasticsearch index on boot', [
-                'error' => $e->getMessage(),
-            ]);
-        }
     }
 }

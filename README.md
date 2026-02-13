@@ -35,6 +35,7 @@ docker compose up -d
 ```
 
 Isso irá subir:
+
 - **app**: Aplicação Laravel (PHP-FPM)
 - **mysql**: Banco de dados MySQL
 - **redis**: Cache Redis
@@ -151,31 +152,37 @@ Controller → Service → Repository → Model → Database
 ## 🔧 Decisões Técnicas
 
 ### 1. **Arquitetura em Camadas**
+
 - **Controllers**: Apenas recebem requisições e retornam respostas
 - **Services**: Contêm a lógica de negócio
 - **Repositories**: Abstraem o acesso aos dados
 - **DTOs**: Transferem dados entre camadas
 
 ### 2. **ElasticSearch**
+
 - Sincronização automática via Observer
 - Indexação assíncrona (não bloqueia a resposta)
 - Tratamento de erros com logs
 
 ### 3. **Cache Redis**
+
 - TTL de 90 segundos
 - Invalidação automática em updates/deletes
 - Cache por combinação de parâmetros na busca
 - Não cacheia páginas muito altas (page > 50)
 
 ### 4. **Soft Delete**
+
 - Produtos não são removidos fisicamente
 - Permite auditoria e recuperação
 
 ### 5. **AWS S3**
+
 - Upload de imagens com fallback para storage local
 - Suporta configuração real ou simulação
 
 ### 6. **Testes**
+
 - SQLite em memória para testes (mais rápido)
 - MySQL em produção
 - Cobertura de casos principais (CRUD, validações, busca)
@@ -199,7 +206,7 @@ Controller → Service → Repository → Model → Database
 
 ### Estrutura dos Containers
 
-- **app**: PHP 8.2-FPM com extensões necessárias
+- **app**: PHP 8.4-FPM com extensões necessárias
 - **mysql**: MySQL 8.0 com healthcheck
 - **redis**: Redis 7 Alpine
 - **elasticsearch**: Elasticsearch 8.11.0

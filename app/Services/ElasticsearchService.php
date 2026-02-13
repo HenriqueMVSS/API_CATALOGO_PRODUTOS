@@ -14,6 +14,15 @@ class ElasticsearchService
         private Client $client
     ) {}
 
+    private function ensureIndexExists(): void
+    {
+        try {
+            $this->createIndex();
+        } catch (\Exception $e) {
+            Log::warning('Elasticsearch index creation skipped or failed', ['error' => $e->getMessage()]);
+        }
+    }
+
     public function createIndex(): void
     {
         $params = [
@@ -54,6 +63,7 @@ class ElasticsearchService
 
     public function indexProduct(Product $product): void
     {
+        $this->ensureIndexExists();
         $params = [
             'index' => self::INDEX_NAME,
             'id' => $product->id,
@@ -96,6 +106,7 @@ class ElasticsearchService
 
     public function search(array $params): array
     {
+        $this->ensureIndexExists();
         $query = [
             'index' => self::INDEX_NAME,
             'body' => [
