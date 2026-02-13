@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
-use Elasticsearch\Client;
+use Elastic\Elasticsearch\Client;
 use Illuminate\Support\Facades\Log;
 
 class ElasticsearchService

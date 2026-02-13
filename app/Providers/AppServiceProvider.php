@@ -8,8 +8,8 @@ use App\Repositories\ProductRepository;
 use App\Services\ElasticsearchService;
 use App\Services\ProductService;
 use App\Services\S3Service;
-use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\ClientBuilder;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
