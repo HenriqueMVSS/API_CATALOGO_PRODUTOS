@@ -1,59 +1,254 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# API Catálogo de Produtos
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST desenvolvida em Laravel 11 para gerenciamento de catálogo de produtos com busca ElasticSearch, cache Redis e integração AWS S3.
 
-## About Laravel
+## 📋 Requisitos
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Docker e Docker Compose
+- PHP 8.2+
+- Composer
+- MySQL 8.0+
+- Redis 7+
+- Elasticsearch 8.11+
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Como Rodar com Docker
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Clone o repositório
 
-## Learning Laravel
+```bash
+git clone <repository-url>
+cd Catalogo-Produtos
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 2. Configure o ambiente
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+cp .env.example .env
+```
 
-## Laravel Sponsors
+Edite o arquivo `.env` se necessário (as configurações padrão já estão prontas para Docker).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 3. Suba os containers
 
-### Premium Partners
+```bash
+docker compose up -d
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Isso irá subir:
+- **app**: Aplicação Laravel (PHP-FPM)
+- **mysql**: Banco de dados MySQL
+- **redis**: Cache Redis
+- **elasticsearch**: Elasticsearch para busca
 
-## Contributing
+### 4. Instale as dependências
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+docker compose exec app composer install
+```
 
-## Code of Conduct
+### 5. Gere a chave da aplicação
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+docker compose exec app php artisan key:generate
+```
 
-## Security Vulnerabilities
+### 6. Execute as migrations
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+docker compose exec app php artisan migrate
+```
 
-## License
+### 7. Execute os seeders (opcional)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+docker compose exec app php artisan db:seed
+```
+
+Isso criará 10 produtos de exemplo no banco de dados.
+
+### 8. Gere a documentação Swagger
+
+```bash
+docker compose exec app php artisan l5-swagger:generate
+```
+
+### 9. Acesse a aplicação
+
+A API estará disponível em: `http://localhost:8000`
+
+**Documentação Swagger**: `http://localhost:8000/api/documentation`
+
+## 🧪 Como Rodar Testes
+
+### Com Docker
+
+```bash
+docker compose exec app php artisan test
+```
+
+### Localmente (requer ambiente configurado)
+
+```bash
+php artisan test
+```
+
+Os testes utilizam SQLite em memória para maior velocidade e isolamento.
+
+## 📚 Endpoints da API
+
+### Produtos
+
+- `POST /api/products` - Criar produto
+- `GET /api/products` - Listar produtos (com paginação e filtros)
+- `GET /api/products/{id}` - Buscar produto por ID
+- `PUT /api/products/{id}` - Atualizar produto
+- `DELETE /api/products/{id}` - Excluir produto (soft delete)
+- `POST /api/products/{id}/image` - Upload de imagem do produto
+
+### Busca
+
+- `GET /api/search/products` - Buscar produtos com ElasticSearch
+
+#### Parâmetros de busca:
+
+- `q` - Busca textual em name e description
+- `category` - Filtrar por categoria
+- `min_price` - Preço mínimo
+- `max_price` - Preço máximo
+- `status` - Filtrar por status (active/inactive)
+- `sort` - Ordenar por (price, created_at)
+- `order` - Ordem (asc, desc)
+- `page` - Página
+- `per_page` - Itens por página
+
+## 🏗️ Arquitetura
+
+O projeto segue uma arquitetura limpa com separação de responsabilidades:
+
+```
+app/
+├── DTOs/              # Data Transfer Objects
+├── Http/
+│   ├── Controllers/   # Controllers da API
+│   └── Requests/      # Form Requests (validação)
+├── Models/            # Eloquent Models
+├── Observers/         # Model Observers
+├── Repositories/      # Repositories (camada de dados)
+├── Services/          # Services (lógica de negócio)
+└── Providers/         # Service Providers
+```
+
+### Fluxo de Dados
+
+```
+Controller → Service → Repository → Model → Database
+                ↓
+         ElasticsearchService
+                ↓
+         Cache (Redis)
+```
+
+## 🔧 Decisões Técnicas
+
+### 1. **Arquitetura em Camadas**
+- **Controllers**: Apenas recebem requisições e retornam respostas
+- **Services**: Contêm a lógica de negócio
+- **Repositories**: Abstraem o acesso aos dados
+- **DTOs**: Transferem dados entre camadas
+
+### 2. **ElasticSearch**
+- Sincronização automática via Observer
+- Indexação assíncrona (não bloqueia a resposta)
+- Tratamento de erros com logs
+
+### 3. **Cache Redis**
+- TTL de 90 segundos
+- Invalidação automática em updates/deletes
+- Cache por combinação de parâmetros na busca
+- Não cacheia páginas muito altas (page > 50)
+
+### 4. **Soft Delete**
+- Produtos não são removidos fisicamente
+- Permite auditoria e recuperação
+
+### 5. **AWS S3**
+- Upload de imagens com fallback para storage local
+- Suporta configuração real ou simulação
+
+### 6. **Testes**
+- SQLite em memória para testes (mais rápido)
+- MySQL em produção
+- Cobertura de casos principais (CRUD, validações, busca)
+
+## 📝 Validações
+
+### Regras de Negócio
+
+- **SKU**: Único, obrigatório
+- **Nome**: Mínimo 3 caracteres, obrigatório
+- **Preço**: Maior que zero, obrigatório
+- **Status**: Padrão "active", valores: active/inactive
+
+## 🔍 Observabilidade
+
+- Logs estruturados em todas as operações importantes
+- Tratamento de erros padronizado
+- Mensagens de erro claras e consistentes
+
+## 🐳 Docker
+
+### Estrutura dos Containers
+
+- **app**: PHP 8.2-FPM com extensões necessárias
+- **mysql**: MySQL 8.0 com healthcheck
+- **redis**: Redis 7 Alpine
+- **elasticsearch**: Elasticsearch 8.11.0
+
+### Comandos Úteis
+
+```bash
+# Ver logs
+docker compose logs -f app
+
+# Acessar container
+docker compose exec app bash
+
+# Reiniciar serviços
+docker compose restart
+
+# Parar tudo
+docker compose down
+
+# Parar e remover volumes
+docker compose down -v
+```
+
+## 📦 Limitações Conhecidas
+
+1. **ElasticSearch**: Requer alguns segundos para indexar após criação/atualização
+2. **Cache**: Invalidação de cache de busca não é granular (invalida todos)
+3. **S3**: Em ambiente local, usa storage local como fallback
+4. **Testes**: Alguns testes de busca podem falhar se ElasticSearch não estiver pronto
+
+## 🚧 Próximos Passos
+
+- [ ] Implementar filas para indexação assíncrona do ElasticSearch
+- [ ] Adicionar autenticação (JWT ou Sanctum)
+- [ ] Implementar rate limiting
+- [ ] Adicionar mais testes de integração
+- [ ] Melhorar invalidação granular de cache
+- [ ] Adicionar métricas e monitoramento
+- [ ] Implementar versionamento de API
+- [ ] Adicionar documentação de erros na API
+
+## 📄 Licença
+
+Este projeto é um desafio técnico e não possui licença específica.
+
+## 👤 Autor
+
+Desenvolvido como parte de um desafio técnico.
+
+---
+
+**Nota**: Para produção, configure adequadamente as variáveis de ambiente, especialmente as credenciais AWS e configurações de segurança.

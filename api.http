@@ -1,0 +1,60 @@
+### API Catálogo de Produtos - Requisições HTTP
+
+@baseUrl = http://localhost:8000/api
+
+### Criar Produto
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+    "sku": "PROD-001",
+    "name": "Smartphone Galaxy",
+    "description": "Smartphone com tela de 6.5 polegadas",
+    "price": 1299.99,
+    "category": "Eletrônicos",
+    "status": "active"
+}
+
+### Listar Produtos
+GET {{baseUrl}}/products?page=1&per_page=10
+
+### Listar Produtos com Filtros
+GET {{baseUrl}}/products?category=Eletrônicos&status=active&min_price=100&max_price=2000
+
+### Buscar Produto por ID
+GET {{baseUrl}}/products/1
+
+### Atualizar Produto
+PUT {{baseUrl}}/products/1
+Content-Type: application/json
+
+{
+    "name": "Smartphone Galaxy Pro",
+    "price": 1499.99
+}
+
+### Excluir Produto
+DELETE {{baseUrl}}/products/1
+
+### Upload de Imagem
+POST {{baseUrl}}/products/1/image
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="product.jpg"
+Content-Type: image/jpeg
+
+< ./path/to/image.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Buscar Produtos com ElasticSearch
+GET {{baseUrl}}/search/products?q=Smartphone
+
+### Buscar com Filtros
+GET {{baseUrl}}/search/products?q=Smartphone&category=Eletrônicos&min_price=1000&max_price=2000
+
+### Buscar com Ordenação
+GET {{baseUrl}}/search/products?sort=price&order=asc
+
+### Buscar com Paginação
+GET {{baseUrl}}/search/products?page=1&per_page=5
