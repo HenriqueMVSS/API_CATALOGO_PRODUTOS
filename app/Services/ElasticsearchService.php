@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Illuminate\Support\Facades\Log;
 
 class ElasticsearchService
@@ -48,10 +49,18 @@ class ElasticsearchService
         ];
 
         try {
-            if (!$this->client->indices()->exists(['index' => self::INDEX_NAME])) {
-                $this->client->indices()->create($params);
-                Log::info('Elasticsearch index created', ['index' => self::INDEX_NAME]);
+            $this->client->indices()->create($params);
+            Log::info('Elasticsearch index created', ['index' => self::INDEX_NAME]);
+        } catch (ClientResponseException $e) {
+            $body = (string) $e->getResponse()->getBody();
+            if ($e->getResponse()->getStatusCode() === 400 && str_contains($body, 'resource_already_exists_exception')) {
+                return;
             }
+            Log::error('Failed to create Elasticsearch index', [
+                'error' => $e->getMessage(),
+                'index' => self::INDEX_NAME,
+            ]);
+            throw $e;
         } catch (\Exception $e) {
             Log::error('Failed to create Elasticsearch index', [
                 'error' => $e->getMessage(),
