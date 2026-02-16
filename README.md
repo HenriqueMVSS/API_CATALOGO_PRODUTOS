@@ -67,13 +67,21 @@ docker compose exec app php artisan db:seed
 
 Isso criará 10 produtos de exemplo no banco de dados.
 
-### 8. Gere a documentação Swagger
+### 8. Reindexe os produtos no Elasticsearch (opcional)
+
+Se você rodou os seeders ou já tem produtos no banco, sincronize-os com o Elasticsearch para que a busca (`GET /api/search/products`) retorne resultados:
+
+```bash
+docker compose exec app php artisan products:reindex
+```
+
+### 9. Gere a documentação Swagger
 
 ```bash
 docker compose exec app php artisan l5-swagger:generate
 ```
 
-### 9. Acesse a aplicação
+### 10. Acesse a aplicação
 
 A API estará disponível em: `http://localhost:8000`
 
@@ -160,8 +168,8 @@ Controller → Service → Repository → Model → Database
 
 ### 2. **ElasticSearch**
 
-- Sincronização automática via Observer
-- Indexação assíncrona (não bloqueia a resposta)
+- Sincronização automática via Observer (criação/atualização de produtos)
+- Comando `php artisan products:reindex` para sincronizar todos os produtos do banco com o índice (útil após seeders ou quando o índice foi recriado)
 - Tratamento de erros com logs
 
 ### 3. **Cache Redis**
@@ -219,6 +227,9 @@ docker compose logs -f app
 
 # Acessar container
 docker compose exec app bash
+
+# Reindexar produtos no Elasticsearch (sincroniza banco → busca)
+docker compose exec app php artisan products:reindex
 
 # Reiniciar serviços
 docker compose restart
