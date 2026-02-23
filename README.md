@@ -16,8 +16,9 @@ API REST desenvolvida em Laravel 11 para gerenciamento de catálogo de produtos 
 ### 1. Clone o repositório
 
 ```bash
-git clone <repository-url>
-cd Catalogo-Produtos
+git clone https://github.com/HenriqueMVSS/API_CATALOGO_PRODUTOS
+
+cd API_CATALOGO_PRODUTOS
 ```
 
 ### 2. Configure o ambiente
